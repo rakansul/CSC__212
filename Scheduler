@@ -1,0 +1,104 @@
+package com.os.scheduler;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
+
+/**
+ * Abstract Scheduler class
+ * Base class for all scheduling algorithms
+ */
+public abstract class Scheduler {
+    protected Queue<PCB> readyQueue;
+    protected int currentTime;
+    protected List<ExecutionRecord> executionHistory;
+    protected MemoryManager memoryManager;
+    
+    public Scheduler(MemoryManager memoryManager) {
+        this.readyQueue = new ConcurrentLinkedQueue<>();
+        this.currentTime = 0;
+        this.executionHistory = new ArrayList<>();
+        this.memoryManager = memoryManager;
+    }
+    
+    /**
+     * Add a process to the ready queue
+     * @param process Process to add
+     */
+    public void addProcess(PCB process) {
+        readyQueue.add(process);
+        process.setState("READY");
+    }
+    
+    /**
+     * Execute the scheduler algorithm
+     * Each subclass will implement this differently
+     */
+    public abstract void schedule();
+    
+    /**
+     * Calculate and return statistics
+     * @return Map containing various statistics
+     */
+    public Map<String, Object> getStatistics() {
+        Map<String, Object> stats = new HashMap<>();
+        double totalWaitingTime = 0;
+        double totalTurnaroundTime = 0;
+        int processCount = executionHistory.size();
+        
+        for (ExecutionRecord record : executionHistory) {
+            PCB process = record.getProcess();
+            totalWaitingTime += process.getWaitingTime();
+            totalTurnaroundTime += process.getTurnaroundTime();
+        }
+        
+        stats.put("averageWaitingTime", totalWaitingTime / processCount);
+        stats.put("averageTurnaroundTime", totalTurnaroundTime / processCount);
+        stats.put("executionHistory", executionHistory);
+        
+        return stats;
+    }
+    
+    /**
+     * Generate a Gantt chart representation
+     * @return String containing Gantt chart
+     */
+    public String generateGanttChart() {
+        StringBuilder ganttChart = new StringBuilder();
+        StringBuilder timeline = new StringBuilder();
+        StringBuilder processes = new StringBuilder();
+        
+        int lastEndTime = 0;
+        
+        // Header
+        ganttChart.append("Gantt Chart for ").append(getClass().getSimpleName()).append("\n");
+        
+        // Timeline and process indicators
+        for (ExecutionRecord record : executionHistory) {
+            int startTime = record.getStartTime();
+            int endTime = record.getEndTime();
+            PCB process = record.getProcess();
+            
+            // Add spacing for timeline
+            timeline.append(String.format("%-" + (endTime - startTime + 1) + "s", startTime));
+            
+            // Add process execution representation
+            processes.append("|");
+            processes.append(String.format("%-" + (endTime - startTime) + "s", "P" + process.getProcessId()));
+            
+            lastEndTime = endTime;
+        }
+        processes.append("|");
+        
+        // Add final time marker
+        timeline.append(lastEndTime);
+        
+        ganttChart.append(timeline).append("\n");
+        ganttChart.append(processes).append("\n");
+        
+        return ganttChart.toString();
+    }
+}

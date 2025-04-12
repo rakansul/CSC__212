@@ -1,0 +1,135 @@
+package com.os.scheduler;
+
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.PriorityQueue;
+
+/**
+ * Priority Scheduler
+ */
+public class PriorityScheduler extends Scheduler {
+    private int starvationThreshold;
+    private List<PCB> starvedProcesses;
+    
+    public PriorityScheduler(MemoryManager memoryManager) {
+        super(memoryManager);
+        // Default starvation threshold
+        this.starvationThreshold = 20;
+        this.starvedProcesses = new ArrayList<>();
+    }
+    
+    /**
+     * Set the starvation threshold
+     * @param threshold Number of time units after which a process is considered starved
+     */
+    public void setStarvationThreshold(int threshold) {
+        this.starvationThreshold = threshold;
+    }
+    
+    @Override
+    public void schedule() {
+        System.out.println("Starting Priority scheduling");
+        
+        // Create a priority queue sorted by priority (higher priority value = higher priority)
+        PriorityQueue<PCB> priorityQueue = new PriorityQueue<>(
+            Comparator.comparingInt((PCB p) -> -p.getPriority())
+        );
+        
+        // Add all processes to the priority queue
+        priorityQueue.addAll(readyQueue);
+        readyQueue.clear();
+        
+        int previousProcessId = -1; // To track context switches
+        int timeInReadyQueue = 0; // To track starvation
+        
+        while (!priorityQueue.isEmpty()) {
+            // Check for starvation and adjust priorities if needed
+            detectStarvation(priorityQueue, timeInReadyQueue);
+            
+            PCB currentProcess = priorityQueue.poll();
+            currentProcess.setState("RUNNING");
+            
+            // If this is a new process, record waiting time
+            if (previousProcessId != currentProcess.getProcessId()) {
+                timeInReadyQueue = currentTime - currentProcess.getCompletionTime();
+                System.out.println("Time " + currentTime + ": Process " + currentProcess.getProcessId() + 
+                                   " started execution (Priority: " + currentProcess.getPriority() + ")");
+            }
+            
+            int startTime = currentTime;
+            int burstTime = currentProcess.getRemainingBurstTime();
+            
+            // Update waiting time
+            currentProcess.incrementWaitingTime(timeInReadyQueue);
+            
+            // Simulate execution by advancing time
+            currentTime += burstTime;
+            currentProcess.setRemainingBurstTime(0);
+            
+            // Process is now complete
+            currentProcess.setState("TERMINATED");
+            currentProcess.setCompletionTime(currentTime);
+            currentProcess.calculateTurnaroundTime();
+            
+            // Free up memory
+            memoryManager.freeMemory(currentProcess.getMemoryRequired());
+            
+            // Add to execution history
+            executionHistory.add(new ExecutionRecord(currentProcess, startTime, currentTime));
+            
+            previousProcessId = currentProcess.getProcessId();
+            
+            System.out.println("Time " + currentTime + ": Process " + currentProcess.getProcessId() + 
+                               " completed execution");
+            System.out.println("Waiting time: " + currentProcess.getWaitingTime() + 
+                               ", Turnaround time: " + currentProcess.getTurnaroundTime());
+        }
+        
+        System.out.println("Priority scheduling complete");
+        
+        // Print starved processes if any
+        if (!starvedProcesses.isEmpty()) {
+            System.out.println("\nStarved Processes:");
+            for (PCB process : starvedProcesses) {
+                System.out.println("Process " + process.getProcessId() + 
+                                   " (Original Priority: " + process.getPriority() + ")");
+            }
+        }
+    }
+    
+    /**
+     * Detect and handle starvation
+     * @param priorityQueue The priority queue
+     * @param timeInQueue Time spent in ready queue
+     */
+    private void detectStarvation(PriorityQueue<PCB> priorityQueue, int timeInQueue) {
+        if (timeInQueue > starvationThreshold) {
+            List<PCB> processes = new ArrayList<>(priorityQueue);
+            for (PCB process : processes) {
+                if (!starvedProcesses.contains(process)) {
+                    System.out.println("Starvation detected for Process " + process.getProcessId());
+                    starvedProcesses.add(process);
+                    
+                    // Increase priority to prevent further starvation
+                    int newPriority = Math.min(8, process.getPriority() + 1);
+                    process.setPriority(newPriority);
+                    System.out.println("Increased priority of Process " + process.getProcessId() + 
+                                       " to " + newPriority);
+                }
+            }
+            
+            // Re-create priority queue with updated priorities
+            priorityQueue.clear();
+            priorityQueue.addAll(processes);
+        }
+    }
+    
+    /**
+     * Get list of processes that experienced starvation
+     * @return List of starved processes
+     */
+    public List<PCB> getStarvedProcesses() {
+        return starvedProcesses;
+    }
+}

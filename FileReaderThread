@@ -1,0 +1,90 @@
+package com.os.scheduler;
+
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
+
+/**
+ * File Reader Thread
+ * Reads process information from job.txt
+ */
+public class FileReaderThread extends Thread {
+    private String filename;
+    private Queue<PCB> jobQueue;
+    
+    public FileReaderThread(String filename) {
+        this.filename = filename;
+        this.jobQueue = new ConcurrentLinkedQueue<>();
+    }
+    
+    @Override
+    public void run() {
+        try {
+            System.out.println("FileReaderThread started. Reading from: " + filename);
+            readFile();
+            System.out.println("FileReaderThread finished. Read " + jobQueue.size() + " jobs.");
+        } catch (IOException e) {
+            System.err.println("Error reading file: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+    
+    /**
+     * Read the input file and create PCBs
+     */
+    public void readFile() throws IOException {
+        try (BufferedReader reader = new BufferedReader(new FileReader(filename))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                PCB process = parseJobLine(line);
+                if (process != null) {
+                    jobQueue.add(process);
+                    System.out.println("Read process: " + process);
+                }
+            }
+        }
+    }
+    
+    /**
+     * Parse a line from the job file
+     * Expected format: processId:burstTime:priority;memoryRequired
+     */
+    public PCB parseJobLine(String line) {
+        try {
+            // Split by semicolon to separate memory requirement
+            String[] parts = line.split(";");
+            if (parts.length != 2) {
+                System.err.println("Invalid line format: " + line);
+                return null;
+            }
+            
+            // Get memory requirement
+            int memoryRequired = Integer.parseInt(parts[1].trim());
+            
+            // Split the first part by colon to get process details
+            String[] processParts = parts[0].split(":");
+            if (processParts.length != 3) {
+                System.err.println("Invalid process format: " + parts[0]);
+                return null;
+            }
+            
+            int processId = Integer.parseInt(processParts[0].trim());
+            int burstTime = Integer.parseInt(processParts[1].trim());
+            int priority = Integer.parseInt(processParts[2].trim());
+            
+            return new PCB(processId, burstTime, priority, memoryRequired);
+        } catch (NumberFormatException e) {
+            System.err.println("Error parsing numbers in line: " + line);
+            return null;
+        }
+    }
+    
+    /**
+     * Get the job queue
+     */
+    public Queue<PCB> getJobQueue() {
+        return jobQueue;
+    }
+}

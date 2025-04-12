@@ -1,0 +1,80 @@
+package com.os.scheduler;
+
+import java.util.Queue;
+
+/**
+ * Job Loader Thread
+ * Loads jobs from job queue to ready queue based on memory availability
+ */
+public class JobLoaderThread extends Thread {
+    private Queue<PCB> jobQueue;
+    private Scheduler scheduler;
+    private MemoryManager memoryManager;
+    private boolean isRunning;
+    
+    public JobLoaderThread(Queue<PCB> jobQueue, Scheduler scheduler, MemoryManager memoryManager) {
+        this.jobQueue = jobQueue;
+        this.scheduler = scheduler;
+        this.memoryManager = memoryManager;
+        this.isRunning = true;
+    }
+    
+    @Override
+    public void run() {
+        System.out.println("JobLoaderThread started");
+        
+        while (isRunning) {
+            // Check if there are jobs to load
+            if (!jobQueue.isEmpty()) {
+                loadJob();
+            } else if (isRunning) {
+                // No more jobs to load, sleep for a while before checking again
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
+            }
+        }
+        
+        System.out.println("JobLoaderThread finished");
+    }
+    
+    /**
+     * Load a job from job queue to ready queue if memory is available
+     * @return true if a job was loaded, false otherwise
+     */
+    public boolean loadJob() {
+        PCB job = jobQueue.peek();
+        if (job == null) {
+            return false;
+        }
+        
+        if (memoryManager.isMemoryAvailable(job.getMemoryRequired())) {
+            // Remove job from job queue
+            jobQueue.poll();
+            
+            // Allocate memory
+            memoryManager.allocateMemory(job.getMemoryRequired());
+            
+            // Add to ready queue
+            scheduler.addProcess(job);
+            
+            System.out.println("Loaded process " + job.getProcessId() + " to ready queue");
+            return true;
+        } else {
+            // Not enough memory
+            System.out.println("Not enough memory for process " + job.getProcessId() + 
+                               " (requires " + job.getMemoryRequired() + " MB)");
+            return false;
+        }
+    }
+    
+    /**
+     * Stop the job loader thread
+     */
+    public void stopLoading() {
+        this.isRunning = false;
+        this.interrupt();
+    }
+}
