@@ -4,168 +4,153 @@ import java.util.Map;
 import java.util.Scanner;
 
 /**
- * Main application class for the OS Scheduler Simulation
+ * Main application class for the OS Scheduler Simulation 
  */
 public class OSMain {
     public static void main(String[] args) {
-        System.out.println("OS Scheduler Simulation");
-        
-        // Create memory manager
-        MemoryManager memoryManager = new MemoryManager();
-        
-        // Ask for input file
         Scanner scanner = new Scanner(System.in);
-        System.out.print("Enter the path to job.txt: ");
-        String filename = scanner.nextLine().trim();
+
+        System.out.println("===============================================");
+        System.out.println("          Operating System Scheduler           ");
+        System.out.println("===============================================");
         
-        // Start file reader thread
+        // Ask for the file path
+        System.out.print("Enter the path to job.txt (or press Enter to use the default path): ");
+        String filename = scanner.nextLine().trim();
+        if (filename.isEmpty()) {
+            filename = "C:/Users/USER/Desktop/CSC_227/src/CSC_227/job.txt"; // Default file path
+            System.out.println("No file path provided. Using default: " + filename);
+        }
+
+        // Instantiate the FileReaderThread with the chosen file path
         FileReaderThread fileReaderThread = new FileReaderThread(filename);
         fileReaderThread.start();
         
+        // Wait for the file to be fully read before continuing
+        // The reason for it is to wait tell the file been read then go and display the menu 
         try {
-            // Wait for file reading to complete
             fileReaderThread.join();
+            System.out.println("File reading completed successfully.");
         } catch (InterruptedException e) {
             System.err.println("File reading interrupted: " + e.getMessage());
-            return;
+            return; // Exit the program if file reading fails
         }
-        
-        // Get job queue from file reader
-        if (fileReaderThread.getJobQueue().isEmpty()) {
-            System.err.println("No jobs found in the input file");
-            return;
+
+        // Display the menu
+        int choice = -1;
+        while (choice != 0) {
+            System.out.println("\nMenu:");
+            System.out.println("1. Run First-Come-First-Serve (FCFS) Scheduler");
+            System.out.println("2. Run Round-Robin (RR) Scheduler");
+            System.out.println("3. Run Priority Scheduler");
+            System.out.println("4. Compare All Scheduling Algorithms");
+            System.out.println("0. Exit");
+            System.out.print("Enter your choice: ");
+            
+            // Validate input
+            if (scanner.hasNextInt()) {
+                choice = scanner.nextInt();
+            } else {
+                System.out.println("Invalid input. Please enter a number from 0 to 4.");
+                scanner.next(); // Clear invalid input
+                continue;
+            }
+
+            // Handle user choice
+            switch (choice) {
+                case 1:
+                    runFCFS(fileReaderThread);
+                    break;
+                case 2:
+                    runRR(fileReaderThread);
+                    break;
+                case 3:
+                    runPriority(fileReaderThread);
+                    break;
+                case 4:
+                    compareAlgorithms(fileReaderThread);
+                    break;
+                case 0:
+                    System.out.println("Exiting the program. Goodbye!");
+                    break;
+                default:
+                    System.out.println("Invalid choice. Please select a valid option.");
+                    break;
+            }
         }
-        
-        // Choose scheduling algorithm
-        System.out.println("\nSelect scheduling algorithm:");
-        System.out.println("1. First-Come-First-Serve (FCFS)");
-        System.out.println("2. Round-Robin (RR) with quantum = 7ms");
-        System.out.println("3. Priority Scheduling");
-        System.out.println("4. Compare all algorithms");
-        System.out.print("Enter your choice (1-4): ");
-        
-        int choice = scanner.nextInt();
-        scanner.nextLine(); // Consume newline
-        
-        switch (choice) {
-            case 1:
-                runFCFS(memoryManager, fileReaderThread);
-                break;
-            case 2:
-                runRR(memoryManager, fileReaderThread);
-                break;
-            case 3:
-                runPriority(memoryManager, fileReaderThread);
-                break;
-            case 4:
-                compareAlgorithms(memoryManager, fileReaderThread);
-                break;
-            default:
-                System.out.println("Invalid choice. Exiting.");
-        }
-        
+
         scanner.close();
     }
-    
-    
 
-	/**
-     * Run FCFS scheduling algorithm
+    /**
+     * Run the First-Come-First-Serve (FCFS) Scheduler
      */
-    private static void runFCFS(MemoryManager memoryManager, FileReaderThread fileReaderThread) {
-        FCFSScheduler scheduler = new FCFSScheduler(memoryManager);
-        
-        // Start job loader thread
+    private static void runFCFS(FileReaderThread fileReaderThread) {
+        System.out.println("Running First-Come-First-Serve (FCFS) Scheduler...");
+        Scheduler scheduler = new FCFSScheduler(new MemoryManager());
+        runScheduler(scheduler, fileReaderThread);
+    }
+
+    /**
+     * Run the Round-Robin (RR) Scheduler
+     */
+    private static void runRR(FileReaderThread fileReaderThread) {
+        System.out.println("Running Round-Robin (RR) Scheduler...");
+        Scheduler scheduler = new RRScheduler(new MemoryManager());
+        runScheduler(scheduler, fileReaderThread);
+    }
+
+    /**
+     * Run the Priority Scheduler
+     */
+    private static void runPriority(FileReaderThread fileReaderThread) {
+        System.out.println("Running Priority Scheduler...");
+        Scheduler scheduler = new PriorityScheduler(new MemoryManager());
+        runScheduler(scheduler, fileReaderThread);
+    }
+
+    /**
+     * Compare All Scheduling Algorithms
+     */
+    private static void compareAlgorithms(FileReaderThread fileReaderThread) {
+        System.out.println("Comparing all scheduling algorithms...");
+        Scheduler[] schedulers = {
+            new FCFSScheduler(new MemoryManager()),
+            new RRScheduler(new MemoryManager()),
+            new PriorityScheduler(new MemoryManager())
+        };
+        for (Scheduler scheduler : schedulers) {
+            System.out.println("\nRunning " + scheduler.getClass().getSimpleName());
+            runScheduler(scheduler, fileReaderThread);
+        }
+    }
+
+    /**
+     * Generic method to run a scheduler
+     */
+    private static void runScheduler(Scheduler scheduler, FileReaderThread fileReaderThread) {
         JobLoaderThread jobLoaderThread = new JobLoaderThread(
-            fileReaderThread.getJobQueue(), scheduler, memoryManager);
+            fileReaderThread.getJobQueue(), scheduler, new MemoryManager());
         jobLoaderThread.start();
-        
         try {
-            // Give some time for jobs to be loaded
-            Thread.sleep(500);
-            
-            // Stop job loader thread
+            Thread.sleep(500); // Simulate processing time
             jobLoaderThread.stopLoading();
             jobLoaderThread.join();
-            
-            // Run scheduler
             scheduler.schedule();
-            
-            // Display results
-            System.out.println("\nFCFS Results:");
-            System.out.println(scheduler.generateGanttChart());
-            
-            Map<String, Object> stats = scheduler.getStatistics();
-            double avgWaiting = (double) stats.get("averageWaitingTime");
-            double avgTurnaround = (double) stats.get("averageTurnaroundTime");
-            
-            System.out.println("Average Waiting Time: " + String.format("%.2f", avgWaiting) + " ms");
-            System.out.println("Average Turnaround Time: " + String.format("%.2f", avgTurnaround) + " ms");
-            
+            displayResults(scheduler);
         } catch (InterruptedException e) {
             System.err.println("Job loading interrupted: " + e.getMessage());
         }
     }
-    
+
     /**
-     * Run Round Robin scheduling algorithm
+     * Display results for a scheduler
      */
-    private static void runRR(MemoryManager memoryManager, FileReaderThread fileReaderThread) {
-        RRScheduler scheduler = new RRScheduler(memoryManager);
-        
-        // Start job loader thread
-        JobLoaderThread jobLoaderThread = new JobLoaderThread(
-            fileReaderThread.getJobQueue(), scheduler, memoryManager);
-        jobLoaderThread.start();
-        
-        try {
-            // Give some time for jobs to be loaded
-            Thread.sleep(500);
-            
-            // Stop job loader thread
-            jobLoaderThread.stopLoading();
-            jobLoaderThread.join();
-            
-            // Run scheduler
-            scheduler.schedule();
-            
-            // Display results
-            System.out.println("\nRound Robin Results:");
-            System.out.println(scheduler.generateGanttChart());
-            
-            Map<String, Object> stats = scheduler.getStatistics();
-            double avgWaiting = (double) stats.get("averageWaitingTime");
-            double avgTurnaround = (double) stats.get("averageTurnaroundTime");
-            
-            System.out.println("Average Waiting Time: " + String.format("%.2f", avgWaiting) + " ms");
-            System.out.println("Average Turnaround Time: " + String.format("%.2f", avgTurnaround) + " ms");
-            
-        } catch (InterruptedException e) {
-            System.err.println("Job loading interrupted: " + e.getMessage());
-        }
-    }
-    
-    /**
-     * Run Priority scheduling algorithm
-     */
-    private static void runPriority(MemoryManager memoryManager, FileReaderThread fileReaderThread) {
-        PriorityScheduler scheduler = new PriorityScheduler(memoryManager);
-        
-        // Start job loader thread
-        JobLoaderThread jobLoaderThread = new JobLoaderThread(
-            fileReaderThread.getJobQueue(), scheduler, memoryManager);
-        jobLoaderThread.start();
-        
-        try {
-            // Give some time for jobs to be loaded
-            Thread.sleep(500);
-        }
-        catch (InterruptedException e) {
-            System.err.println("Job loading interrupted: " + e.getMessage());
-        }
-        
+    private static void displayResults(Scheduler scheduler) {
+        System.out.println("\n" + scheduler.getClass().getSimpleName() + " Results:");
+        System.out.println(scheduler.generateGanttChart());
+        var stats = scheduler.getStatistics();
+        System.out.printf("Average Waiting Time: %.2f ms%n", stats.get("averageWaitingTime"));
+        System.out.printf("Average Turnaround Time: %.2f ms%n", stats.get("averageTurnaroundTime"));
     }
 }
-
-            
-    
