@@ -1,4 +1,4 @@
-package com.os.scheduler;
+package CSC_227;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -24,25 +24,17 @@ public abstract class Scheduler {
         this.memoryManager = memoryManager;
     }
     
-    /**
-     * Add a process to the ready queue
-     * @param process Process to add
-     */
+    // Add a process to the ready queue
+     
     public void addProcess(PCB process) {
         readyQueue.add(process);
         process.setState("READY");
     }
     
-    /**
-     * Execute the scheduler algorithm
-     * Each subclass will implement this differently
-     */
+    
     public abstract void schedule();
     
-    /**
-     * Calculate and return statistics
-     * @return Map containing various statistics
-     */
+    
     public Map<String, Object> getStatistics() {
         Map<String, Object> stats = new HashMap<>();
         double totalWaitingTime = 0;
@@ -62,10 +54,7 @@ public abstract class Scheduler {
         return stats;
     }
     
-    /**
-     * Generate a Gantt chart representation
-     * @return String containing Gantt chart
-     */
+    
     public String generateGanttChart() {
         StringBuilder ganttChart = new StringBuilder();
         StringBuilder timeline = new StringBuilder();
@@ -82,12 +71,16 @@ public abstract class Scheduler {
             int endTime = record.getEndTime();
             PCB process = record.getProcess();
             
+            int duration = endTime - startTime;
+            int widthForTimeline = Math.max(duration + 1, 1); // Ensure at least width 1
+            int widthForProcesses = Math.max(duration, 1);    // Ensure at least width 1
+            
             // Add spacing for timeline
-            timeline.append(String.format("%-" + (endTime - startTime + 1) + "s", startTime));
+            timeline.append(String.format("%-" + widthForTimeline + "s", startTime));
             
             // Add process execution representation
             processes.append("|");
-            processes.append(String.format("%-" + (endTime - startTime) + "s", "P" + process.getProcessId()));
+            processes.append(String.format("%-" + widthForProcesses + "s", "P" + process.getProcessId()));
             
             lastEndTime = endTime;
         }
