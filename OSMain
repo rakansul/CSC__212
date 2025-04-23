@@ -1,11 +1,14 @@
 package CSC_227;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
  * Main application class for the OS Scheduler Simulation 
- */
+ */ 
 public class OSMain {
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
@@ -39,13 +42,14 @@ public class OSMain {
         // Display the menu
         int choice = -1;
         while (choice != 0) {
+        	System.out.println("===================================================");
             System.out.println("\nMenu:");
             System.out.println("1. Run First-Come-First-Serve (FCFS) Scheduler");
             System.out.println("2. Run Round-Robin (RR) Scheduler");
             System.out.println("3. Run Priority Scheduler");
-            System.out.println("4. Compare All Scheduling Algorithms");
+            System.out.println("4. Compare All Scheduling Algorithms"); 
             System.out.println("0. Exit");
-            System.out.print("Enter your choice: ");
+            System.out.print("Enter your choice: "); 
             
             // Validate input
             if (scanner.hasNextInt()) {
@@ -54,7 +58,7 @@ public class OSMain {
                 System.out.println("Invalid input. Please enter a number from 0 to 4.");
                 scanner.next(); // Clear invalid input
                 continue;
-            }
+            } 
 
             // Handle user choice
             switch (choice) {
@@ -86,6 +90,7 @@ public class OSMain {
      * Run the First-Come-First-Serve (FCFS) Scheduler
      */
     private static void runFCFS(FileReaderThread fileReaderThread) {
+    	System.out.println("===================================================");
         System.out.println("Running First-Come-First-Serve (FCFS) Scheduler...");
         Scheduler scheduler = new FCFSScheduler(new MemoryManager());
         runScheduler(scheduler, fileReaderThread);
@@ -95,6 +100,7 @@ public class OSMain {
      * Run the Round-Robin (RR) Scheduler
      */
     private static void runRR(FileReaderThread fileReaderThread) {
+    	System.out.println("===================================================");
         System.out.println("Running Round-Robin (RR) Scheduler...");
         Scheduler scheduler = new RRScheduler(new MemoryManager());
         runScheduler(scheduler, fileReaderThread);
@@ -104,33 +110,42 @@ public class OSMain {
      * Run the Priority Scheduler
      */
     private static void runPriority(FileReaderThread fileReaderThread) {
+    	System.out.println("===================================================");
         System.out.println("Running Priority Scheduler...");
         Scheduler scheduler = new PriorityScheduler(new MemoryManager());
         runScheduler(scheduler, fileReaderThread);
     }
 
-    /**
-     * Compare All Scheduling Algorithms
-     */
+    
     private static void compareAlgorithms(FileReaderThread fileReaderThread) {
         System.out.println("Comparing all scheduling algorithms...");
+     
+        // Make a deep copy of the job queue for each scheduler
+        List<PCB> originalJobQueue = new ArrayList<>(fileReaderThread.getJobQueue());
+        
+        runFCFS(fileReaderThread);
+        
         Scheduler[] schedulers = {
-            new FCFSScheduler(new MemoryManager()),
-            new RRScheduler(new MemoryManager()),
-            new PriorityScheduler(new MemoryManager())
-        };
+            new RRScheduler(new MemoryManager()),new PriorityScheduler(new MemoryManager())
+            }
+        ;
+        
+        
         for (Scheduler scheduler : schedulers) {
-            System.out.println("\nRunning " + scheduler.getClass().getSimpleName());
-            runScheduler(scheduler, fileReaderThread);
+        System.out.println("\nRunning " + scheduler.getClass().getSimpleName());
+        
+        // Reload the job queue for each scheduler
+        fileReaderThread.setJobQueue(new ConcurrentLinkedQueue<>(originalJobQueue));
+        
+        // Run the scheduler 
+        runScheduler(scheduler, fileReaderThread);
+        
         }
     }
-
-    /**
-     * Generic method to run a scheduler
-     */
+    
     private static void runScheduler(Scheduler scheduler, FileReaderThread fileReaderThread) {
         JobLoaderThread jobLoaderThread = new JobLoaderThread(
-            fileReaderThread.getJobQueue(), scheduler, new MemoryManager());
+        fileReaderThread.getJobQueue(), scheduler, new MemoryManager());
         jobLoaderThread.start();
         try {
             Thread.sleep(500); // Simulate processing time
@@ -143,9 +158,7 @@ public class OSMain {
         }
     }
 
-    /**
-     * Display results for a scheduler
-     */
+    
     private static void displayResults(Scheduler scheduler) {
         System.out.println("\n" + scheduler.getClass().getSimpleName() + " Results:");
         System.out.println(scheduler.generateGanttChart());
