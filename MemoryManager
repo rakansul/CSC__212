@@ -1,11 +1,11 @@
-package com.os.scheduler;
+package CSC_227;
 
 /**
  * Memory Manager class
  * Handles memory allocation and deallocation
  */
 public class MemoryManager {
-    private static final int TOTAL_MEMORY = 512; // 512 MB as per requirements
+    private static final int TOTAL_MEMORY = 2048;
     private int availableMemory;
     private int usedMemory;
     
@@ -14,10 +14,10 @@ public class MemoryManager {
         this.usedMemory = 0;
     }
     
-    /**
+    /*
      * Allocate memory for a process
-     * @param memoryRequired Amount of memory required
-     * @return true if allocation successful, false otherwise
+     * memoryRequired Amount of memory required
+     * return true if allocation successful, false otherwise
      */
     public synchronized boolean allocateMemory(int memoryRequired) {
         if (memoryRequired <= availableMemory) {
@@ -31,37 +31,22 @@ public class MemoryManager {
         }
     }
     
-    /**
-     * Free memory when a process completes
-     * @param memoryToFree Amount of memory to free
-     */
     public synchronized void freeMemory(int memoryToFree) {
         availableMemory += memoryToFree;
         usedMemory -= memoryToFree;
         System.out.println("Memory freed: " + memoryToFree + " MB. Available memory: " + availableMemory + " MB");
     }
     
-    /**
-     * Check if enough memory is available for a process
-     * @param memoryRequired Amount of memory required
-     * @return true if memory is available, false otherwise
-     */
+    
     public synchronized boolean isMemoryAvailable(int memoryRequired) {
         return memoryRequired <= availableMemory;
     }
     
-    /**
-     * Get available memory
-     * @return Amount of available memory in MB
-     */
+    
     public synchronized int getAvailableMemory() {
         return availableMemory;
     }
-    
-    /**
-     * Get used memory
-     * @return Amount of used memory in MB
-     */
+   
     public synchronized int getUsedMemory() {
         return usedMemory;
     }
