@@ -1,4 +1,4 @@
-package com.os.scheduler;
+package CSC_227;
 
 /**
  * Process Control Block (PCB) class
@@ -28,8 +28,8 @@ public class PCB {
         this.turnaroundTime = 0;
         this.arrivalTime = 0; // All processes arrive at time 0 as per requirements
     }
-    
-    // Getters and setters
+ 
+	// Getters and setters
     public int getProcessId() {
         return processId;
     }
@@ -107,11 +107,8 @@ public class PCB {
     
     @Override
     public String toString() {
-        return "Process ID: " + processId + 
-               ", Burst Time: " + burstTime + 
-               ", Priority: " + priority + 
-               ", Memory: " + memoryRequired + "MB" +
-               ", State: " + state;
+        return "Process ID: " + processId + ", Burst Time: " + burstTime +
+        		", Priority: " + priority + ", Memory: " +
+        		memoryRequired + "MB" +", State: " + state;
     }
 }
-
