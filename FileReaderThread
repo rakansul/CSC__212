@@ -1,4 +1,4 @@
-package com.os.scheduler;
+package CSC_227;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -10,6 +10,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
  * File Reader Thread
  * Reads process information from job.txt
  */
+
 public class FileReaderThread extends Thread {
     private String filename;
     private Queue<PCB> jobQueue;
@@ -31,9 +32,7 @@ public class FileReaderThread extends Thread {
         }
     }
     
-    /**
-     * Read the input file and create PCBs
-     */
+    
     public void readFile() throws IOException {
         try (BufferedReader reader = new BufferedReader(new FileReader(filename))) {
             String line;
@@ -47,10 +46,7 @@ public class FileReaderThread extends Thread {
         }
     }
     
-    /**
-     * Parse a line from the job file
-     * Expected format: processId:burstTime:priority;memoryRequired
-     */
+    
     public PCB parseJobLine(String line) {
         try {
             // Split by semicolon to separate memory requirement
@@ -79,12 +75,13 @@ public class FileReaderThread extends Thread {
             System.err.println("Error parsing numbers in line: " + line);
             return null;
         }
-    }
+    } 
     
-    /**
-     * Get the job queue
-     */
     public Queue<PCB> getJobQueue() {
         return jobQueue;
+    }
+
+    public void setJobQueue(Queue<PCB> newJobQueue) {
+        this.jobQueue = newJobQueue;
     }
 }
