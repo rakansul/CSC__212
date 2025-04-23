@@ -1,8 +1,10 @@
-package com.os.scheduler;
+package CSC_227;
 
 /**
  * First-Come-First-Serve Scheduler
  */
+
+
 public class FCFSScheduler extends Scheduler {
     
     public FCFSScheduler(MemoryManager memoryManager) {
@@ -17,8 +19,7 @@ public class FCFSScheduler extends Scheduler {
             PCB currentProcess = readyQueue.poll();
             currentProcess.setState("RUNNING");
             
-            System.out.println("Time " + currentTime + ": Process " + currentProcess.getProcessId() + 
-                               " started execution");
+            System.out.println("Time " + currentTime + ": Process " + currentProcess.getProcessId() + " started execution");
             
             int startTime = currentTime;
             int burstTime = currentProcess.getBurstTime();
@@ -34,7 +35,7 @@ public class FCFSScheduler extends Scheduler {
             currentProcess.setCompletionTime(currentTime);
             currentProcess.calculateTurnaroundTime();
             
-            // Free up memory
+           ///////////////////// Free up memory
             memoryManager.freeMemory(currentProcess.getMemoryRequired());
             
             // Add to execution history
