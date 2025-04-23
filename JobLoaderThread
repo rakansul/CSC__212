@@ -1,4 +1,4 @@
-package com.os.scheduler;
+package CSC_227;
 
 import java.util.Queue;
 
@@ -51,28 +51,19 @@ public class JobLoaderThread extends Thread {
         }
         
         if (memoryManager.isMemoryAvailable(job.getMemoryRequired())) {
-            // Remove job from job queue
-            jobQueue.poll();
-            
-            // Allocate memory
+        	jobQueue.poll();
             memoryManager.allocateMemory(job.getMemoryRequired());
-            
-            // Add to ready queue
             scheduler.addProcess(job);
             
             System.out.println("Loaded process " + job.getProcessId() + " to ready queue");
             return true;
         } else {
-            // Not enough memory
             System.out.println("Not enough memory for process " + job.getProcessId() + 
                                " (requires " + job.getMemoryRequired() + " MB)");
             return false;
         }
     }
     
-    /**
-     * Stop the job loader thread
-     */
     public void stopLoading() {
         this.isRunning = false;
         this.interrupt();
