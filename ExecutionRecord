@@ -1,4 +1,4 @@
-package com.os.scheduler;
+package CSC_227;
 
 /**
  * Execution Record class
@@ -29,8 +29,6 @@ public class ExecutionRecord {
     
     @Override
     public String toString() {
-        return "Process " + process.getProcessId() + 
-               " executed from time " + startTime + 
-               " to time " + endTime;
+        return "Process " + process.getProcessId() + " executed from time " + startTime + " to time " + endTime;
     }
 }
