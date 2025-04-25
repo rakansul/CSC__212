@@ -1,53 +1,49 @@
 package CSC_227;
 
-/**
- * Memory Manager class
- * Handles memory allocation and deallocation
- */
-public class MemoryManager {
-    private static final int TOTAL_MEMORY = 2048;
-    private int availableMemory;
-    private int usedMemory;
-    
-    public MemoryManager() {
-        this.availableMemory = TOTAL_MEMORY;
-        this.usedMemory = 0;
-    }
-    
-    /*
-     * Allocate memory for a process
-     * memoryRequired Amount of memory required
-     * return true if allocation successful, false otherwise
-     */
-    public synchronized boolean allocateMemory(int memoryRequired) {
-        if (memoryRequired <= availableMemory) {
-            availableMemory -= memoryRequired;
-            usedMemory += memoryRequired;
-            System.out.println("Memory allocated: " + memoryRequired + " MB. Available memory: " + availableMemory + " MB");
-            return true;
-        } else {
-            System.out.println("Not enough memory to allocate " + memoryRequired + " MB. Available memory: " + availableMemory + " MB");
-            return false;
-        }
-    }
-    
-    public synchronized void freeMemory(int memoryToFree) {
-        availableMemory += memoryToFree;
-        usedMemory -= memoryToFree;
-        System.out.println("Memory freed: " + memoryToFree + " MB. Available memory: " + availableMemory + " MB");
-    }
-    
-    
-    public synchronized boolean isMemoryAvailable(int memoryRequired) {
-        return memoryRequired <= availableMemory;
-    }
-    
-    
-    public synchronized int getAvailableMemory() {
-        return availableMemory;
-    }
-   
-    public synchronized int getUsedMemory() {
-        return usedMemory;
-    }
-}
+		/**
+		 * Memory Manager class
+		 * Handles memory allocation and deallocation
+		 */
+		public class MemoryManager {
+		    private static final int TOTAL_MEMORY = 2048;
+		    private int availableMemory;
+		    private int usedMemory;
+		    
+		    public MemoryManager() {
+		        this.availableMemory = TOTAL_MEMORY;
+		        this.usedMemory = 0;
+		    }
+		    
+		   
+		    public synchronized boolean allocateMemory(int memoryRequired) {
+		        if (memoryRequired <= availableMemory) {
+		            availableMemory -= memoryRequired;
+		            usedMemory += memoryRequired;
+		            System.out.println("Memory allocated: " + memoryRequired + " MB. Available memory: " + availableMemory + " MB");
+		            return true;
+		        } else {
+		            System.out.println("Not enough memory to allocate " + memoryRequired + " MB. Available memory: " + availableMemory + " MB");
+		            return false;
+		        }
+		    }
+		    
+		    public synchronized void freeMemory(int memoryToFree) {
+		        availableMemory += memoryToFree;
+		        usedMemory -= memoryToFree;
+		        System.out.println("Memory freed: " + memoryToFree + " MB. Available memory: " + availableMemory + " MB");
+		    }
+		    
+		    
+		    public synchronized boolean isMemoryAvailable(int memoryRequired) {
+		        return memoryRequired <= availableMemory;
+		    }
+		    
+		    
+		    public synchronized int getAvailableMemory() {
+		        return availableMemory;
+		    }
+		   
+		    public synchronized int getUsedMemory() {
+		        return usedMemory;
+		    }
+		}
