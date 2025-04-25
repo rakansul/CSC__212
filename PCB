@@ -15,6 +15,7 @@ public class PCB {
     private int turnaroundTime;
     private int arrivalTime;
     private int completionTime;
+    private int OldPriority ;
     
     
     public PCB(int processId, int burstTime, int priority, int memoryRequired) {
@@ -27,8 +28,10 @@ public class PCB {
         this.waitingTime = 0;
         this.turnaroundTime = 0;
         this.arrivalTime = 0; // All processes arrive at time 0 as per requirements
+        this.OldPriority = priority;
+    
     }
- 
+    
 	// Getters and setters
     public int getProcessId() {
         return processId;
@@ -40,6 +43,9 @@ public class PCB {
     
     public int getPriority() {
         return priority;
+    }
+    public int getOldPriority() {
+        return OldPriority;
     }
     
     public void setPriority(int priority) {
