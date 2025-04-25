@@ -11,33 +11,15 @@ import java.util.concurrent.ConcurrentLinkedQueue;
  */ 
 public class OSMain {
     public static void main(String[] args) {
+    	
+    	String filename = "C:/Users/USER/Desktop/CSC_227/src/CSC_227/job.txt"; // Default file path
         Scanner scanner = new Scanner(System.in);
 
         System.out.println("===============================================");
         System.out.println("          Operating System Scheduler           ");
         System.out.println("===============================================");
         
-        // Ask for the file path
-        System.out.print("Enter the path to job.txt (or press Enter to use the default path): ");
-        String filename = scanner.nextLine().trim();
-        if (filename.isEmpty()) {
-            filename = "C:/Users/USER/Desktop/CSC_227/src/CSC_227/job.txt"; // Default file path
-            System.out.println("No file path provided. Using default: " + filename);
-        }
-
-        // Instantiate the FileReaderThread with the chosen file path
-        FileReaderThread fileReaderThread = new FileReaderThread(filename);
-        fileReaderThread.start();
         
-        // Wait for the file to be fully read before continuing
-        // The reason for it is to wait tell the file been read then go and display the menu 
-        try {
-            fileReaderThread.join();
-            System.out.println("File reading completed successfully.");
-        } catch (InterruptedException e) {
-            System.err.println("File reading interrupted: " + e.getMessage());
-            return; // Exit the program if file reading fails
-        }
 
         // Display the menu
         int choice = -1;
@@ -52,7 +34,7 @@ public class OSMain {
             System.out.print("Enter your choice: "); 
             
             // Validate input
-            if (scanner.hasNextInt()) {
+            if (scanner.hasNextInt()) { 
                 choice = scanner.nextInt();
             } else {
                 System.out.println("Invalid input. Please enter a number from 0 to 4.");
@@ -63,16 +45,56 @@ public class OSMain {
             // Handle user choice
             switch (choice) {
                 case 1:
-                    runFCFS(fileReaderThread);
+                    // Instantiate the FileReaderThread with the chosen file path
+                    FileReaderThread fileReaderThread1 = new FileReaderThread(filename);
+                    fileReaderThread1.start();
+                    
+                    // Wait for the file to be fully read before continuing
+                    // The reason for it is to wait tell the file been read then go and display the menu 
+                    try {
+                        fileReaderThread1.join();
+                        System.out.println("File reading completed successfully.");
+                    } catch (InterruptedException e) {
+                        System.err.println("File reading interrupted: " + e.getMessage());
+                        return; // Exit the program if file reading fails
+                    }
+                    runFCFS(fileReaderThread1);
                     break;
                 case 2:
-                    runRR(fileReaderThread);
+                    // Instantiate the FileReaderThread with the chosen file path
+                    FileReaderThread fileReaderThread2 = new FileReaderThread(filename);
+                    fileReaderThread2.start();
+                    
+                    // Wait for the file to be fully read before continuing
+                    // The reason for it is to wait tell the file been read then go and display the menu 
+                    try {
+                        fileReaderThread2.join();
+                        System.out.println("File reading completed successfully.");
+                    } catch (InterruptedException e) {
+                        System.err.println("File reading interrupted: " + e.getMessage());
+                        return; // Exit the program if file reading fails
+                    }
+                    runRR(fileReaderThread2);
                     break;
                 case 3:
-                    runPriority(fileReaderThread);
+                	
+                    // Instantiate the FileReaderThread with the chosen file path
+                    FileReaderThread fileReaderThread3 = new FileReaderThread(filename);
+                    fileReaderThread3.start();
+                    
+                    // Wait for the file to be fully read before continuing
+                    // The reason for it is to wait tell the file been read then go and display the menu 
+                    try {
+                        fileReaderThread3.join();
+                        System.out.println("File reading completed successfully.");
+                    } catch (InterruptedException e) {
+                        System.err.println("File reading interrupted: " + e.getMessage());
+                        return; // Exit the program if file reading fails
+                    }
+                    runPriority(fileReaderThread3);
                     break;
                 case 4:
-                    compareAlgorithms(fileReaderThread);
+                    compareAlgorithms(filename);
                     break;
                 case 0:
                     System.out.println("Exiting the program. Goodbye!");
@@ -85,20 +107,14 @@ public class OSMain {
 
         scanner.close();
     }
-/////////////////////////////////////////////////////////////////////////////////////////////
-    /**
-     * Run the First-Come-First-Serve (FCFS) Scheduler
-     */
+    
     private static void runFCFS(FileReaderThread fileReaderThread) {
     	System.out.println("===================================================");
         System.out.println("Running First-Come-First-Serve (FCFS) Scheduler...");
         Scheduler scheduler = new FCFSScheduler(new MemoryManager());
         runScheduler(scheduler, fileReaderThread);
     }
-
-    /**
-     * Run the Round-Robin (RR) Scheduler
-     */
+    
     private static void runRR(FileReaderThread fileReaderThread) {
     	System.out.println("===================================================");
         System.out.println("Running Round-Robin (RR) Scheduler...");
@@ -106,40 +122,90 @@ public class OSMain {
         runScheduler(scheduler, fileReaderThread);
     }
 
-    /**
-     * Run the Priority Scheduler
-     */
     private static void runPriority(FileReaderThread fileReaderThread) {
     	System.out.println("===================================================");
         System.out.println("Running Priority Scheduler...");
         Scheduler scheduler = new PriorityScheduler(new MemoryManager());
         runScheduler(scheduler, fileReaderThread);
     }
+    
 
-    // Compare All Scheduling Algorithms
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////
-    private static void compareAlgorithms(FileReaderThread fileReaderThread) {
-        System.out.println("Comparing all scheduling algorithms...");
-     
-        // Make a deep copy of the job queue for each scheduler
-        List<PCB> originalJobQueue = new ArrayList<>(fileReaderThread.getJobQueue());
+    private static void compareAlgorithms(String filename) {
+    	
+        // Instantiate the FileReaderThread with the chosen file path
+        FileReaderThread fileReaderThread1 = new FileReaderThread(filename);
+        fileReaderThread1.start();
         
-        runFCFS(fileReaderThread);
+        // Wait for the file to be fully read before continuing
+        // The reason for it is to wait tell the file been read then go and display the menu 
+        try {
+            fileReaderThread1.join();
+            System.out.println("File reading completed successfully.");
+        } catch (InterruptedException e) {
+            System.err.println("File reading interrupted: " + e.getMessage());
+            return; // Exit the program if file reading fails
+        }
+        runFCFS(fileReaderThread1);
         
-        Scheduler[] schedulers = {
-            new RRScheduler(new MemoryManager()),new PriorityScheduler(new MemoryManager())
-            }
-        ;
         
+        // Instantiate the FileReaderThread with the chosen file path
+        FileReaderThread fileReaderThread2 = new FileReaderThread(filename);
+        fileReaderThread2.start();
         
-        for (Scheduler scheduler : schedulers) {
-        System.out.println("\nRunning " + scheduler.getClass().getSimpleName());
+        // Wait for the file to be fully read before continuing
+        // The reason for it is to wait tell the file been read then go and display the menu 
+        try {
+            fileReaderThread2.join();
+            System.out.println("File reading completed successfully.");
+        } catch (InterruptedException e) {
+            System.err.println("File reading interrupted: " + e.getMessage());
+            return; // Exit the program if file reading fails
+        }
+        runRR(fileReaderThread2);
+        // Instantiate the FileReaderThread with the chosen file path
+        FileReaderThread fileReaderThread3 = new FileReaderThread(filename);
+        fileReaderThread3.start();
         
-        // Reload the job queue for each scheduler
-        fileReaderThread.setJobQueue(new ConcurrentLinkedQueue<>(originalJobQueue));
+        // Wait for the file to be fully read before continuing
+        // The reason for it is to wait tell the file been read then go and display the menu 
+        try {
+            fileReaderThread3.join();
+            System.out.println("File reading completed successfully.");
+        } catch (InterruptedException e) {
+            System.err.println("File reading interrupted: " + e.getMessage());
+            return; // Exit the program if file reading fails
+        }
         
-        // Run the scheduler 
-        runScheduler(scheduler, fileReaderThread);
+        runPriority(fileReaderThread3);
         
+    		
+    		
+    	}
+    
+    
+    private static void runScheduler(Scheduler scheduler, FileReaderThread fileReaderThread) {
+    	MemoryManager memoryManager = scheduler.getMemoryManager();
+        JobLoaderThread jobLoaderThread = new JobLoaderThread(
+        fileReaderThread.getJobQueue(), scheduler, memoryManager);
+        jobLoaderThread.start();
+        try {
+            Thread.sleep(500); // Simulate processing time
+            jobLoaderThread.stopLoading();
+            jobLoaderThread.join();
+            scheduler.schedule();
+            displayResults(scheduler);
+        } catch (InterruptedException e) {
+            System.err.println("Job loading interrupted: " + e.getMessage());
         }
     }
+
+    
+    private static void displayResults(Scheduler scheduler) {
+        System.out.println("\n" + scheduler.getClass().getSimpleName() + " Results:");
+        System.out.println(scheduler.generateGanttChart());
+        var stats = scheduler.getStatistics();
+        System.out.printf("Average Waiting Time: %.2f ms%n", stats.get("averageWaitingTime"));
+        System.out.printf("Average Turnaround Time: %.2f ms%n", stats.get("averageTurnaroundTime"));
+    }
+}
+
