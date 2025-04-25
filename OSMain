@@ -85,7 +85,7 @@ public class OSMain {
 
         scanner.close();
     }
-
+/////////////////////////////////////////////////////////////////////////////////////////////
     /**
      * Run the First-Come-First-Serve (FCFS) Scheduler
      */
@@ -116,7 +116,8 @@ public class OSMain {
         runScheduler(scheduler, fileReaderThread);
     }
 
-    
+    // Compare All Scheduling Algorithms
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     private static void compareAlgorithms(FileReaderThread fileReaderThread) {
         System.out.println("Comparing all scheduling algorithms...");
      
@@ -142,28 +143,3 @@ public class OSMain {
         
         }
     }
-    
-    private static void runScheduler(Scheduler scheduler, FileReaderThread fileReaderThread) {
-        JobLoaderThread jobLoaderThread = new JobLoaderThread(
-        fileReaderThread.getJobQueue(), scheduler, new MemoryManager());
-        jobLoaderThread.start();
-        try {
-            Thread.sleep(500); // Simulate processing time
-            jobLoaderThread.stopLoading();
-            jobLoaderThread.join();
-            scheduler.schedule();
-            displayResults(scheduler);
-        } catch (InterruptedException e) {
-            System.err.println("Job loading interrupted: " + e.getMessage());
-        }
-    }
-
-    
-    private static void displayResults(Scheduler scheduler) {
-        System.out.println("\n" + scheduler.getClass().getSimpleName() + " Results:");
-        System.out.println(scheduler.generateGanttChart());
-        var stats = scheduler.getStatistics();
-        System.out.printf("Average Waiting Time: %.2f ms%n", stats.get("averageWaitingTime"));
-        System.out.printf("Average Turnaround Time: %.2f ms%n", stats.get("averageTurnaroundTime"));
-    }
-}
