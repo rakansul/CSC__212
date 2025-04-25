@@ -1,34 +1,34 @@
 package CSC_227;
-
-/**
- * Execution Record class
- * Records information about process execution
- */
-public class ExecutionRecord {
-    private PCB process;
-    private int startTime;
-    private int endTime;
-    
-    public ExecutionRecord(PCB process, int startTime, int endTime) {
-        this.process = process;
-        this.startTime = startTime;
-        this.endTime = endTime;
-    }
-    
-    public PCB getProcess() {
-        return process;
-    }
-    
-    public int getStartTime() {
-        return startTime;
-    }
-    
-    public int getEndTime() {
-        return endTime;
-    }
-    
-    @Override
-    public String toString() {
-        return "Process " + process.getProcessId() + " executed from time " + startTime + " to time " + endTime;
-    }
-}
+		
+		/**
+		 * Execution Record class
+		 * Records information about process execution
+		 */
+		public class ExecutionRecord {
+		    private PCB process;
+		    private int startTime;
+		    private int endTime;
+		    
+		    public ExecutionRecord(PCB process, int startTime, int endTime) {
+		        this.process = process;
+		        this.startTime = startTime;
+		        this.endTime = endTime;
+		    }
+		    
+		    public PCB getProcess() {
+		        return process;
+		    }
+		    
+		    public int getStartTime() {
+		        return startTime;
+		    }
+		    
+		    public int getEndTime() {
+		        return endTime;
+		    }
+		    
+		    @Override
+		    public String toString() {
+		        return "Process " + process.getProcessId() + " executed from time " + startTime + " to time " + endTime;
+		    }
+		}
