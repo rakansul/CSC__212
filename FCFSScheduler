@@ -1,52 +1,54 @@
 package CSC_227;
+		
+		/**
+		 * First-Come-First-Serve Scheduler
+		 */
+		
+		
+		public class FCFSScheduler extends Scheduler {
+		    
+		    public FCFSScheduler(MemoryManager memoryManager) {
+		        super(memoryManager);
+		    }
+		    
+		    @Override
+		    public void schedule() {
+		        System.out.println("Starting FCFS scheduling");
+		        
+		        while (!readyQueue.isEmpty()) {
+		            PCB currentProcess = readyQueue.poll();
+		            currentProcess.setState("RUNNING");
+		            
+		            System.out.println("Time " + currentTime + ": Process " + currentProcess.getProcessId() + " started execution");
+		            
+		            int startTime = currentTime;
+		            int burstTime = currentProcess.getBurstTime();
+		            
+		            // Update waiting time for the current process
+		            currentProcess.setWaitingTime(startTime);
+		            
+		            // Simulate execution by advancing time
+		            currentTime += burstTime;
+		            
+		            // Process is now complete
+		            currentProcess.setState("TERMINATED");
+		            currentProcess.setCompletionTime(currentTime);
+		            currentProcess.calculateTurnaroundTime();
+		            
+		           // Free up memory
+		            memoryManager.freeMemory(currentProcess.getMemoryRequired());
+		            
+		            
+		            // Add to execution history
+		            executionHistory.add(new ExecutionRecord(currentProcess, startTime, currentTime));
+		            
+		            System.out.println("Time " + currentTime + ": Process " + currentProcess.getProcessId() + 
+		                               " completed execution");
+		            System.out.println("Waiting time: " + currentProcess.getWaitingTime() + 
+		                               ", Turnaround time: " + currentProcess.getTurnaroundTime());
+		        }
+		        
+		        System.out.println("FCFS scheduling complete");
+		    }
+		}
 
-/**
- * First-Come-First-Serve Scheduler
- */
-
-
-public class FCFSScheduler extends Scheduler {
-    
-    public FCFSScheduler(MemoryManager memoryManager) {
-        super(memoryManager);
-    }
-    
-    @Override
-    public void schedule() {
-        System.out.println("Starting FCFS scheduling");
-        
-        while (!readyQueue.isEmpty()) {
-            PCB currentProcess = readyQueue.poll();
-            currentProcess.setState("RUNNING");
-            
-            System.out.println("Time " + currentTime + ": Process " + currentProcess.getProcessId() + " started execution");
-            
-            int startTime = currentTime;
-            int burstTime = currentProcess.getBurstTime();
-            
-            // Update waiting time for the current process
-            currentProcess.setWaitingTime(startTime);
-            
-            // Simulate execution by advancing time
-            currentTime += burstTime;
-            
-            // Process is now complete
-            currentProcess.setState("TERMINATED");
-            currentProcess.setCompletionTime(currentTime);
-            currentProcess.calculateTurnaroundTime();
-            
-           ///////////////////// Free up memory
-            memoryManager.freeMemory(currentProcess.getMemoryRequired());
-            
-            // Add to execution history
-            executionHistory.add(new ExecutionRecord(currentProcess, startTime, currentTime));
-            
-            System.out.println("Time " + currentTime + ": Process " + currentProcess.getProcessId() + 
-                               " completed execution");
-            System.out.println("Waiting time: " + currentProcess.getWaitingTime() + 
-                               ", Turnaround time: " + currentProcess.getTurnaroundTime());
-        }
-        
-        System.out.println("FCFS scheduling complete");
-    }
-}
