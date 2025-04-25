@@ -2,76 +2,76 @@ package CSC_227;
 
 import java.util.LinkedList;
 import java.util.Queue;
-
-/**
- * Round Robin Scheduler
- */
-public class RRScheduler extends Scheduler {
-    private int quantum;
-    
-    public RRScheduler(MemoryManager memoryManager) {
-        super(memoryManager);
-        this.quantum = 7; // quantum = 7ms as per requirements
-    }
-    
-    public void setQuantum(int quantum) {
-        this.quantum = quantum;
-    }
-    
-    @Override
-    public void schedule() {
-        System.out.println("Starting Round-Robin scheduling with quantum = " + quantum);
-        
-        // Use a different queue for processing to avoid concurrent modification
-        Queue<PCB> processingQueue = new LinkedList<>(readyQueue);
-        readyQueue.clear();
-        
-        while (!processingQueue.isEmpty()) {
-            PCB currentProcess = processingQueue.poll();
-            currentProcess.setState("RUNNING");
-            
-            int startTime = currentTime;
-            int remainingTime = currentProcess.getRemainingBurstTime();
-            int executionTime = Math.min(quantum, remainingTime);
-            
-            System.out.println("Time " + currentTime + ": Process " + currentProcess.getProcessId() + 
-                               " started execution for " + executionTime + " ms");
-            
-            // Update waiting time
-            currentProcess.incrementWaitingTime(startTime - currentProcess.getCompletionTime());
-            
-            // Simulate execution by advancing time
-            currentTime += executionTime;
-            currentProcess.decrementRemainingTime(executionTime);
-            
-            // Set completion time to current time (either final or temporary)
-            currentProcess.setCompletionTime(currentTime);
-            
-            // Add to execution history
-            executionHistory.add(new ExecutionRecord(currentProcess, startTime, currentTime));
-            
-            if (currentProcess.getRemainingBurstTime() > 0) {
-                // Process is not finished, put it back in the queue
-                currentProcess.setState("READY");
-                processingQueue.add(currentProcess);
-                
-                System.out.println("Time " + currentTime + ": Process " + currentProcess.getProcessId() + 
-                                   " preempted. Remaining time: " + currentProcess.getRemainingBurstTime() + " ms");
-            } else {
-                // Process is complete
-                currentProcess.setState("TERMINATED");
-                currentProcess.calculateTurnaroundTime();
-                
-                // Free up memory
-                memoryManager.freeMemory(currentProcess.getMemoryRequired());
-                
-                System.out.println("Time " + currentTime + ": Process " + currentProcess.getProcessId() + 
-                                   " completed execution");
-                System.out.println("Waiting time: " + currentProcess.getWaitingTime() + 
-                                   ", Turnaround time: " + currentProcess.getTurnaroundTime());
-            }
-        }
-        
-        System.out.println("Round-Robin scheduling complete");
-    }
-}
+		
+		/**
+		 * Round Robin Scheduler
+		 */ 
+		public class RRScheduler extends Scheduler {
+		    private int quantum;
+		    
+		    public RRScheduler(MemoryManager memoryManager) {
+		        super(memoryManager);
+		        this.quantum = 7; // quantum = 7ms as per requirements
+		    }
+		    
+		    public void setQuantum(int quantum) {
+		        this.quantum = quantum;
+		    }
+		    
+		    @Override
+		    public void schedule() {
+		        System.out.println("Starting Round-Robin scheduling with quantum = " + quantum);
+		        
+		        // Use a different queue for processing to avoid concurrent modification
+		        Queue<PCB> processingQueue = new LinkedList<>(readyQueue);
+		        readyQueue.clear();
+		        
+		        while (!processingQueue.isEmpty()) {
+		            PCB currentProcess = processingQueue.poll();
+		            currentProcess.setState("RUNNING");
+		            
+		            int startTime = currentTime;
+		            int remainingTime = currentProcess.getRemainingBurstTime();
+		            int executionTime = Math.min(quantum, remainingTime);
+		            
+		            System.out.println("Time " + currentTime + ": Process " + currentProcess.getProcessId() + 
+		                               " started execution for " + executionTime + " ms");
+		            
+		            // Update waiting time
+		            currentProcess.incrementWaitingTime(startTime - currentProcess.getCompletionTime());
+		            
+		            // Simulate execution by advancing time
+		            currentTime += executionTime;
+		            currentProcess.decrementRemainingTime(executionTime);
+		            
+		            // Set completion time to current time (either final or temporary)
+		            currentProcess.setCompletionTime(currentTime);
+		             
+		            // Add to execution history
+		            executionHistory.add(new ExecutionRecord(currentProcess, startTime, currentTime));
+		            
+		            if (currentProcess.getRemainingBurstTime() > 0) {
+		                // Process is not finished, put it back in the queue
+		                currentProcess.setState("READY");
+		                processingQueue.add(currentProcess);
+		                
+		                System.out.println("Time " + currentTime + ": Process " + currentProcess.getProcessId() + 
+		                                   " preempted. Remaining time: " + currentProcess.getRemainingBurstTime() + " ms");
+		            } else {
+		                // Process is complete
+		                currentProcess.setState("TERMINATED");
+		                currentProcess.calculateTurnaroundTime();
+		                
+		                // Free up memory
+		                memoryManager.freeMemory(currentProcess.getMemoryRequired());
+		                
+		                System.out.println("Time " + currentTime + ": Process " + currentProcess.getProcessId() + 
+		                                   " completed execution");
+		                System.out.println("Waiting time: " + currentProcess.getWaitingTime() + 
+		                                   ", Turnaround time: " + currentProcess.getTurnaroundTime());
+		            }
+		        }
+		        
+		        System.out.println("Round-Robin scheduling complete");
+		    }
+		}
