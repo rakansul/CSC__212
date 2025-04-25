@@ -23,6 +23,9 @@ public abstract class Scheduler {
         this.executionHistory = new ArrayList<>();
         this.memoryManager = memoryManager;
     }
+    public MemoryManager getMemoryManager() {
+        return this.memoryManager;
+    }
     
     // Add a process to the ready queue
      
